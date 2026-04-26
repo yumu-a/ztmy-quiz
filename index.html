@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>ZTMYクイズ</title>
+<style>
+body {
+  background: black;
+  color: #b84cff;
+  font-family: monospace;
+  text-align: center;
+}
+button {
+  display: block;
+  margin: 10px auto;
+  padding: 10px;
+  background: #111;
+  color: #b84cff;
+  border: 1px solid #b84cff;
+  cursor: pointer;
+}
+button:hover {
+  background: #b84cff;
+  color: black;
+}
+</style>
+</head>
+
+<body>
+
+<h1>ZTMYクイズ</h1>
+<p id="question"></p>
+
+<button onclick="answer(0)" id="a0"></button>
+<button onclick="answer(1)" id="a1"></button>
+<button onclick="answer(2)" id="a2"></button>
+<button onclick="answer(3)" id="a3"></button>
+
+<p id="result"></p>
+
+<script>
+
+const quiz = [
+  {
+    q: "『秒針を噛む』を歌っているのは？",
+    a: ["ずっと真夜中でいいのに。", "YOASOBI", "Ado", "ヨルシカ"],
+    correct: 0
+  },
+  {
+    q: "『お勉強しといてよ』のテーマはどれ？",
+    a: ["恋愛", "勉強", "社会風刺", "友情"],
+    correct: 2
+  },
+  {
+    q: "ボーカルの名前は？",
+    a: ["ACAね", "あいみょん", "ikura", "美波"],
+    correct: 0
+  }
+];
+
+let i = 0;
+let score = 0;
+
+function load() {
+  document.getElementById("question").innerText = quiz[i].q;
+  for (let j=0;j<4;j++) {
+    document.getElementById("a"+j).innerText = quiz[i].a[j];
+  }
+}
+
+function answer(n) {
+  if (n === quiz[i].correct) {
+    score++;
+    document.getElementById("result").innerText = "正解！";
+  } else {
+    document.getElementById("result").innerText = "不正解...";
+  }
+
+  i++;
+  if (i < quiz.length) {
+    setTimeout(load, 1000);
+  } else {
+    document.body.innerHTML = "<h1>スコア: " + score + "/" + quiz.length + "</h1>";
+  }
+}
+
+load();
+
+</script>
+
+</body>
+</html>
