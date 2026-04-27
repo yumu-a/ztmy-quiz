@@ -24,6 +24,12 @@ button:hover {
   background: #b84cff;
   color: black;
 }
+input {
+  padding: 10px;
+  background: #111;
+  border: 1px solid #b84cff;
+  color: #b84cff;
+}
 </style>
 </head>
 
@@ -48,139 +54,151 @@ button:hover {
   <button onclick="next()">次へ</button>
 </div>
 
+<div id="name-area" style="display:none;">
+  <h2>名前を入力</h2>
+  <input id="nameInput" placeholder="名前">
+  <button onclick="submitName()">送信</button>
+  <p id="error" style="color:red;"></p>
+</div>
+
 <script type="module">
 
-// 🔥 Firebase読み込み
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// 🔥 あなたの設定
 const firebaseConfig = {
   apiKey: "AIzaSyAJBiQAmfuoNOtF4TOhqCPYRywOASvL52Y",
   authDomain: "ztmy-quiz.firebaseapp.com",
   projectId: "ztmy-quiz",
 };
 
-// 初期化
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// 問題データ
 const quizData = {
   easy: [
     {q:"ボーカルは？",a:["ACAね","Ado","ikura","美波"],correct:0},
-    {q:"ZTMYの特徴は？",a:["匿名性","実写中心","男性","海外"],correct:0},
-    {q:"よく扱うテーマは？",a:["内面","スポーツ","料理","歴史"],correct:0},
-    {q:"『秒針を噛む』はいつ？",a:["2016","2017","2018","2019"],correct:2},
-    {q:"ライブ特徴は？",a:["映像演出","静か","クラシック","MCなし"],correct:0},
-    {q:"代表曲は？",a:["秒針を噛む","夜に駆ける","うっせぇわ","花に亡霊"],correct:0}
+    {q:"ZTMY特徴？",a:["匿名性","実写","男性","海外"],correct:0},
+    {q:"テーマは？",a:["内面","スポーツ","料理","歴史"],correct:0}
   ],
   hard: [
-    {q:"MV作家は？",a:["革蝉","TV♡CHANY","Waboku","ゴル"],correct:2},
-    {q:"『脳裏上のクラッカー』テーマは？",a:["現実逃避","友情","復讐","恋愛"],correct:0},
-    {q:"『ハゼ馳せる果てるまで』雰囲気は？",a:["明るい","切ない","ホラー","ギャグ"],correct:1},
-    {q:"『正しくなれない』媒体は？",a:["映画","ドラマ","アニメ","CM"],correct:0},
-    {q:"ZTMYの特徴は？",a:["匿名性","海外","男性","実写"],correct:0},
-    {q:"楽曲特徴は？",a:["感情強め","淡白","クラシック","無音"],correct:0},
-    {q:"初期代表曲は？",a:["秒針を噛む","残機","正しくなれない","勘ぐれい"],correct:0}
+    {q:"MV作家？",a:["革蝉","TV♡CHANY","Waboku","ゴル"],correct:2},
+    {q:"クラッカーのテーマ？",a:["現実逃避","友情","復讐","恋愛"],correct:0}
   ]
 };
 
-let quiz = [];
-let i = 0;
-let score = 0;
+let quiz=[], i=0, score=0, mode="easy";
 
 // シャッフル
-function shuffle(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    let j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-}
+function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}}
 
 // スタート
-window.start = function(mode) {
-  document.getElementById("start-area").style.display = "none";
-  document.getElementById("quiz-area").style.display = "block";
+window.start = function(m){
+  mode = m;
+  document.getElementById("start-area").style.display="none";
+  document.getElementById("quiz-area").style.display="block";
 
-  let pool = [...quizData[mode]];
+  let pool=[...quizData[m]];
   shuffle(pool);
-  quiz = pool.slice(0, 5);
+  quiz=pool;
 
-  i = 0;
-  score = 0;
+  i=0; score=0;
   load();
 }
 
 // 問題表示
-function load() {
-  document.getElementById("question").innerText =
-    "Q" + (i+1) + ". " + quiz[i].q;
-
-  for (let j=0;j<4;j++) {
-    document.getElementById("a"+j).innerText = quiz[i].a[j];
+function load(){
+  document.getElementById("question").innerText="Q"+(i+1)+". "+quiz[i].q;
+  for(let j=0;j<4;j++){
+    document.getElementById("a"+j).innerText=quiz[i].a[j];
   }
 }
 
 // 回答
-window.answer = function(n) {
-  document.getElementById("quiz-area").style.display = "none";
-  document.getElementById("result-area").style.display = "block";
+window.answer=function(n){
+  document.getElementById("quiz-area").style.display="none";
+  document.getElementById("result-area").style.display="block";
 
-  if (n === quiz[i].correct) {
+  if(n===quiz[i].correct){
     score++;
-    document.body.style.background = "#2a003f";
-    document.getElementById("result-text").innerText = "正解！🔥";
-  } else {
-    document.body.style.background = "#3f0000";
-    document.getElementById("result-text").innerText =
-      "不正解… 正解は「" + quiz[i].a[quiz[i].correct] + "」";
+    document.body.style.background="#2a003f";
+    document.getElementById("result-text").innerText="正解！🔥";
+  }else{
+    document.body.style.background="#3f0000";
+    document.getElementById("result-text").innerText="不正解… 正解は「"+quiz[i].a[quiz[i].correct]+"」";
   }
 }
 
 // 次へ
-window.next = function() {
+window.next=function(){
   i++;
-
-  if (i < quiz.length) {
-    document.body.style.background = "black";
-    document.getElementById("quiz-area").style.display = "block";
-    document.getElementById("result-area").style.display = "none";
+  if(i<quiz.length){
+    document.body.style.background="black";
+    document.getElementById("quiz-area").style.display="block";
+    document.getElementById("result-area").style.display="none";
     load();
-  } else {
+  }else{
     finish();
   }
 }
 
 // 終了
-async function finish() {
-  let percent = Math.round((score / quiz.length) * 100);
-  let name = prompt("名前を入力してね");
+function finish(){
+  document.getElementById("result-area").style.display="none";
+  document.getElementById("name-area").style.display="block";
+}
 
-  // 🔥 Firebaseに保存
-  await addDoc(collection(db, "ranking"), {
-    name: name,
-    score: percent,
-    time: Date.now()
+// 名前送信
+window.submitName = async function(){
+  let name=document.getElementById("nameInput").value.trim();
+  let error=document.getElementById("error");
+  error.innerText="";
+
+  if(!name){error.innerText="名前入力して"; return;}
+
+  // 🔥 同じモードで一回だけ
+  if(localStorage.getItem("played_"+mode)){
+    error.innerText="このモードはもう登録済み";
+    return;
+  }
+
+  // 🔥 同名チェック
+  const snap = await getDocs(collection(db,"ranking_"+mode));
+  let exists=false;
+  snap.forEach(doc=>{
+    if(doc.data().name===name) exists=true;
+  });
+  if(exists){
+    error.innerText="その名前は使われています";
+    return;
+  }
+
+  let percent=Math.round((score/quiz.length)*100);
+
+  await addDoc(collection(db,"ranking_"+mode),{
+    name:name,
+    score:percent
   });
 
-  // 🔥 ランキング取得
-  const q = query(collection(db, "ranking"), orderBy("score", "desc"), limit(5));
-  const snapshot = await getDocs(q);
+  localStorage.setItem("played_"+mode,true);
 
-  let rankingText = "";
-  let rankNum = 1;
-  snapshot.forEach(doc => {
-    let r = doc.data();
-    rankingText += rankNum + "位: " + r.name + " - " + r.score + "%<br>";
-    rankNum++;
+  // ランキング取得
+  const q=query(collection(db,"ranking_"+mode),orderBy("score","desc"),limit(5));
+  const res=await getDocs(q);
+
+  let text="";
+  let rank=1;
+  res.forEach(doc=>{
+    let d=doc.data();
+    text+=rank+"位: "+d.name+" - "+d.score+"%<br>";
+    rank++;
   });
 
-  document.body.innerHTML =
-    "<h1>結果</h1>" +
-    "<h2>"+percent+"%</h2>" +
-    "<h2>ランキング</h2>" +
-    "<p>"+rankingText+"</p>" +
+  document.body.innerHTML=
+    "<h1>結果</h1>"+
+    "<h2>"+percent+"%</h2>"+
+    "<h2>"+mode+"ランキング</h2>"+
+    "<p>"+text+"</p>"+
     "<button onclick='location.reload()'>もう一回</button>";
 }
 
