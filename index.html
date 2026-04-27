@@ -9,6 +9,7 @@ body {
   color: #b84cff;
   font-family: monospace;
   text-align: center;
+  transition: 0.3s;
 }
 button {
   display: block;
@@ -60,6 +61,41 @@ const quiz = [
     q: "ボーカルの名前は？",
     a: ["ACAね", "あいみょん", "ikura", "美波"],
     correct: 0
+  },
+  {
+    q: "『秒針を噛む』のリリース年は？",
+    a: ["2016年", "2017年", "2018年", "2019年"],
+    correct: 2
+  },
+  {
+    q: "『脳裏上のクラッカー』のテーマとして近いものは？",
+    a: ["現実逃避", "恋愛", "復讐", "友情"],
+    correct: 0
+  },
+  {
+    q: "ZTMYの特徴として正しいのは？",
+    a: ["実写MV中心", "匿名性が高い", "男性ボーカル", "海外グループ"],
+    correct: 1
+  },
+  {
+    q: "『正しくなれない』が主題歌の作品は？",
+    a: ["映画", "ドラマ", "アニメ", "CM"],
+    correct: 0
+  },
+  {
+    q: "ZTMYの楽曲でよく扱われるテーマは？",
+    a: ["社会・内面", "スポーツ", "料理", "歴史"],
+    correct: 0
+  },
+  {
+    q: "『ハゼ馳せる果てるまで』の雰囲気は？",
+    a: ["明るい", "切ない", "ホラー", "ギャグ"],
+    correct: 1
+  },
+  {
+    q: "ZTMYのライブの特徴は？",
+    a: ["映像演出が多い", "静かな演奏", "クラシック中心", "MCなし"],
+    correct: 0
   }
 ];
 
@@ -67,7 +103,9 @@ let i = 0;
 let score = 0;
 
 function load() {
-  document.getElementById("question").innerText = quiz[i].q;
+  document.getElementById("question").innerText =
+    "Q" + (i+1) + ". " + quiz[i].q;
+
   for (let j=0;j<4;j++) {
     document.getElementById("a"+j).innerText = quiz[i].a[j];
   }
@@ -79,9 +117,12 @@ function answer(n) {
 
   if (n === quiz[i].correct) {
     score++;
+    document.body.style.background = "#2a003f";
     document.getElementById("result-text").innerText = "正解！🔥";
   } else {
-    document.getElementById("result-text").innerText = "不正解…😢";
+    document.body.style.background = "#3f0000";
+    document.getElementById("result-text").innerText =
+      "不正解…😢 正解は「" + quiz[i].a[quiz[i].correct] + "」";
   }
 }
 
@@ -89,6 +130,7 @@ function next() {
   i++;
 
   if (i < quiz.length) {
+    document.body.style.background = "black";
     document.getElementById("quiz-area").style.display = "block";
     document.getElementById("result-area").style.display = "none";
     load();
@@ -109,8 +151,9 @@ function next() {
     document.body.innerHTML =
       "<h1>結果</h1>" +
       "<h2>" + score + "/" + quiz.length + "</h2>" +
-      "<h2>" + percent + "%</h2>" +
-      "<h3>" + rank + "</h3>";
+      "<h2>正解率: " + percent + "%</h2>" +
+      "<h3>" + rank + "</h3>" +
+      "<button onclick='location.reload()'>もう一回</button>";
   }
 }
 
