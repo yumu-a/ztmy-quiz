@@ -38,13 +38,28 @@ button:hover {
 
 <p id="result"></p>
 
+<div id="quiz-area">
+  <h1>ZTMYクイズ</h1>
+  <p id="question"></p>
+
+  <button onclick="answer(0)" id="a0"></button>
+  <button onclick="answer(1)" id="a1"></button>
+  <button onclick="answer(2)" id="a2"></button>
+  <button onclick="answer(3)" id="a3"></button>
+</div>
+
+<div id="result-area" style="display:none;">
+  <h1 id="result-text"></h1>
+  <button onclick="next()">次へ</button>
+</div>
+
 <script>
 
 const quiz = [
   {
     q: "『秒針を噛む』のMVを制作した作家は？",
     a: ["革蝉", "TV♡CHANY", "Waboku", "ゴル"],
-    correct: 3
+    correct: 2
   },
   {
     q: "『お勉強しといてよ』のテーマはどれ？",
@@ -69,12 +84,32 @@ function load() {
 }
 
 function answer(n) {
+  document.getElementById("quiz-area").style.display = "none";
+  document.getElementById("result-area").style.display = "block";
+
   if (n === quiz[i].correct) {
     score++;
-    document.getElementById("result").innerText = "正解！";
+    document.getElementById("result-text").innerText = "正解！";
   } else {
-    document.getElementById("result").innerText = "不正解...";
+    document.getElementById("result-text").innerText = "不正解...";
   }
+}
+
+function next() {
+  i++;
+
+  if (i < quiz.length) {
+    document.getElementById("quiz-area").style.display = "block";
+    document.getElementById("result-area").style.display = "none";
+    load();
+  } else {
+    let percent = Math.round((score / quiz.length) * 100);
+    document.body.innerHTML =
+      "<h1>結果</h1>" +
+      "<h2>" + score + "/" + quiz.length + "</h2>" +
+      "<h2>" + percent + "%</h2>";
+  }
+}
 
   i++;
   if (i < quiz.length) {
