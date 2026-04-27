@@ -42,9 +42,9 @@ button:hover {
 
 const quiz = [
   {
-    q: "『秒針を噛む』を歌っているのは？",
-    a: ["ずっと真夜中でいいのに。", "YOASOBI", "Ado", "ヨルシカ"],
-    correct: 0
+    q: "『秒針を噛む』のMVを制作した作家は？",
+    a: ["革蝉", "TV♡CHANY", "Waboku", "ゴル"],
+    correct: 3
   },
   {
     q: "『お勉強しといてよ』のテーマはどれ？",
@@ -80,7 +80,23 @@ function answer(n) {
   if (i < quiz.length) {
     setTimeout(load, 1000);
   } else {
-    document.body.innerHTML = "<h1>スコア: " + score + "/" + quiz.length + "</h1>";
+    let percent = Math.round((score / quiz.length) * 100);
+
+let rank = "";
+if (percent === 100) {
+  rank = "神（ガチ勢）";
+} else if (percent >= 80) {
+  rank = "かなり詳しい";
+} else if (percent >= 50) {
+  rank = "まあまあ";
+} else {
+  rank = "にわか";
+}
+
+document.body.innerHTML =
+  "<h1>スコア: " + score + "/" + quiz.length + "</h1>" +
+  "<h2>正解率: " + percent + "%</h2>" +
+  "<h3>" + rank + "</h3>";
   }
 }
 
