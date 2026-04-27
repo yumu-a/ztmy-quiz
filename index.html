@@ -28,16 +28,6 @@ button:hover {
 
 <body>
 
-<h1>ZTMYクイズ</h1>
-<p id="question"></p>
-
-<button onclick="answer(0)" id="a0"></button>
-<button onclick="answer(1)" id="a1"></button>
-<button onclick="answer(2)" id="a2"></button>
-<button onclick="answer(3)" id="a3"></button>
-
-<p id="result"></p>
-
 <div id="quiz-area">
   <h1>ZTMYクイズ</h1>
   <p id="question"></p>
@@ -89,9 +79,9 @@ function answer(n) {
 
   if (n === quiz[i].correct) {
     score++;
-    document.getElementById("result-text").innerText = "正解！";
+    document.getElementById("result-text").innerText = "正解！🔥";
   } else {
-    document.getElementById("result-text").innerText = "不正解...";
+    document.getElementById("result-text").innerText = "不正解…😢";
   }
 }
 
@@ -104,34 +94,23 @@ function next() {
     load();
   } else {
     let percent = Math.round((score / quiz.length) * 100);
+
+    let rank = "";
+    if (percent === 100) {
+      rank = "神（ガチ勢）";
+    } else if (percent >= 80) {
+      rank = "かなり詳しい";
+    } else if (percent >= 50) {
+      rank = "まあまあ";
+    } else {
+      rank = "にわか";
+    }
+
     document.body.innerHTML =
       "<h1>結果</h1>" +
       "<h2>" + score + "/" + quiz.length + "</h2>" +
-      "<h2>" + percent + "%</h2>";
-  }
-}
-
-  i++;
-  if (i < quiz.length) {
-    setTimeout(load, 1000);
-  } else {
-    let percent = Math.round((score / quiz.length) * 100);
-
-let rank = "";
-if (percent === 100) {
-  rank = "神（ガチ勢）";
-} else if (percent >= 80) {
-  rank = "かなり詳しい";
-} else if (percent >= 50) {
-  rank = "まあまあ";
-} else {
-  rank = "にわか";
-}
-
-document.body.innerHTML =
-  "<h1>スコア: " + score + "/" + quiz.length + "</h1>" +
-  "<h2>正解率: " + percent + "%</h2>" +
-  "<h3>" + rank + "</h3>";
+      "<h2>" + percent + "%</h2>" +
+      "<h3>" + rank + "</h3>";
   }
 }
 
