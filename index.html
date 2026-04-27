@@ -29,10 +29,14 @@ button:hover {
 
 <body>
 
-<div id="quiz-area">
+<div id="start-area">
   <h1>ZTMYクイズ</h1>
-  <p id="question"></p>
+  <button onclick="start('easy')">Easy</button>
+  <button onclick="start('hard')">ガチ勢モード</button>
+</div>
 
+<div id="quiz-area" style="display:none;">
+  <p id="question"></p>
   <button onclick="answer(0)" id="a0"></button>
   <button onclick="answer(1)" id="a1"></button>
   <button onclick="answer(2)" id="a2"></button>
@@ -45,71 +49,70 @@ button:hover {
 </div>
 
 <script type="module">
-  const firebaseConfig = {
+
+// 🔥 Firebase読み込み
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+// 🔥 あなたの設定
+const firebaseConfig = {
   apiKey: "AIzaSyAJBiQAmfuoNOtF4TOhqCPYRywOASvL52Y",
   authDomain: "ztmy-quiz.firebaseapp.com",
   projectId: "ztmy-quiz",
 };
-</script>
-  
-<script>
 
-const quiz = [
-  {
-    q: "『秒針を噛む』のMVを制作した作家は？",
-    a: ["革蝉", "TV♡CHANY", "Waboku", "ゴル"],
-    correct: 2
-  },
-  {
-    q: "『お勉強しといてよ』のテーマはどれ？",
-    a: ["恋愛", "勉強", "社会風刺", "友情"],
-    correct: 2
-  },
-  {
-    q: "ボーカルの名前は？",
-    a: ["ACAね", "あいみょん", "ikura", "美波"],
-    correct: 0
-  },
-  {
-    q: "『秒針を噛む』のリリース年は？",
-    a: ["2016年", "2017年", "2018年", "2019年"],
-    correct: 2
-  },
-  {
-    q: "『脳裏上のクラッカー』のテーマとして近いものは？",
-    a: ["現実逃避", "恋愛", "復讐", "友情"],
-    correct: 0
-  },
-  {
-    q: "ZTMYの特徴として正しいのは？",
-    a: ["実写MV中心", "匿名性が高い", "男性ボーカル", "海外グループ"],
-    correct: 1
-  },
-  {
-    q: "『正しくなれない』が主題歌の作品は？",
-    a: ["映画", "ドラマ", "アニメ", "CM"],
-    correct: 0
-  },
-  {
-    q: "ZTMYの楽曲でよく扱われるテーマは？",
-    a: ["社会・内面", "スポーツ", "料理", "歴史"],
-    correct: 0
-  },
-  {
-    q: "『ハゼ馳せる果てるまで』の雰囲気は？",
-    a: ["明るい", "切ない", "ホラー", "ギャグ"],
-    correct: 1
-  },
-  {
-    q: "ZTMYのライブの特徴は？",
-    a: ["映像演出が多い", "静かな演奏", "クラシック中心", "MCなし"],
-    correct: 0
-  }
-];
+// 初期化
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
+// 問題データ
+const quizData = {
+  easy: [
+    {q:"ボーカルは？",a:["ACAね","Ado","ikura","美波"],correct:0},
+    {q:"ZTMYの特徴は？",a:["匿名性","実写中心","男性","海外"],correct:0},
+    {q:"よく扱うテーマは？",a:["内面","スポーツ","料理","歴史"],correct:0},
+    {q:"『秒針を噛む』はいつ？",a:["2016","2017","2018","2019"],correct:2},
+    {q:"ライブ特徴は？",a:["映像演出","静か","クラシック","MCなし"],correct:0},
+    {q:"代表曲は？",a:["秒針を噛む","夜に駆ける","うっせぇわ","花に亡霊"],correct:0}
+  ],
+  hard: [
+    {q:"MV作家は？",a:["革蝉","TV♡CHANY","Waboku","ゴル"],correct:2},
+    {q:"『脳裏上のクラッカー』テーマは？",a:["現実逃避","友情","復讐","恋愛"],correct:0},
+    {q:"『ハゼ馳せる果てるまで』雰囲気は？",a:["明るい","切ない","ホラー","ギャグ"],correct:1},
+    {q:"『正しくなれない』媒体は？",a:["映画","ドラマ","アニメ","CM"],correct:0},
+    {q:"ZTMYの特徴は？",a:["匿名性","海外","男性","実写"],correct:0},
+    {q:"楽曲特徴は？",a:["感情強め","淡白","クラシック","無音"],correct:0},
+    {q:"初期代表曲は？",a:["秒針を噛む","残機","正しくなれない","勘ぐれい"],correct:0}
+  ]
+};
+
+let quiz = [];
 let i = 0;
 let score = 0;
 
+// シャッフル
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    let j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+
+// スタート
+window.start = function(mode) {
+  document.getElementById("start-area").style.display = "none";
+  document.getElementById("quiz-area").style.display = "block";
+
+  let pool = [...quizData[mode]];
+  shuffle(pool);
+  quiz = pool.slice(0, 5);
+
+  i = 0;
+  score = 0;
+  load();
+}
+
+// 問題表示
 function load() {
   document.getElementById("question").innerText =
     "Q" + (i+1) + ". " + quiz[i].q;
@@ -119,7 +122,8 @@ function load() {
   }
 }
 
-function answer(n) {
+// 回答
+window.answer = function(n) {
   document.getElementById("quiz-area").style.display = "none";
   document.getElementById("result-area").style.display = "block";
 
@@ -130,11 +134,12 @@ function answer(n) {
   } else {
     document.body.style.background = "#3f0000";
     document.getElementById("result-text").innerText =
-      "不正解…😢 正解は「" + quiz[i].a[quiz[i].correct] + "」";
+      "不正解… 正解は「" + quiz[i].a[quiz[i].correct] + "」";
   }
 }
 
-function next() {
+// 次へ
+window.next = function() {
   i++;
 
   if (i < quiz.length) {
@@ -143,29 +148,41 @@ function next() {
     document.getElementById("result-area").style.display = "none";
     load();
   } else {
-    let percent = Math.round((score / quiz.length) * 100);
-
-    let rank = "";
-    if (percent === 100) {
-      rank = "神（ガチ勢）";
-    } else if (percent >= 80) {
-      rank = "かなり詳しい";
-    } else if (percent >= 50) {
-      rank = "まあまあ";
-    } else {
-      rank = "にわか";
-    }
-
-    document.body.innerHTML =
-      "<h1>結果</h1>" +
-      "<h2>" + score + "/" + quiz.length + "</h2>" +
-      "<h2>正解率: " + percent + "%</h2>" +
-      "<h3>" + rank + "</h3>" +
-      "<button onclick='location.reload()'>もう一回</button>";
+    finish();
   }
 }
 
-load();
+// 終了
+async function finish() {
+  let percent = Math.round((score / quiz.length) * 100);
+  let name = prompt("名前を入力してね");
+
+  // 🔥 Firebaseに保存
+  await addDoc(collection(db, "ranking"), {
+    name: name,
+    score: percent,
+    time: Date.now()
+  });
+
+  // 🔥 ランキング取得
+  const q = query(collection(db, "ranking"), orderBy("score", "desc"), limit(5));
+  const snapshot = await getDocs(q);
+
+  let rankingText = "";
+  let rankNum = 1;
+  snapshot.forEach(doc => {
+    let r = doc.data();
+    rankingText += rankNum + "位: " + r.name + " - " + r.score + "%<br>";
+    rankNum++;
+  });
+
+  document.body.innerHTML =
+    "<h1>結果</h1>" +
+    "<h2>"+percent+"%</h2>" +
+    "<h2>ランキング</h2>" +
+    "<p>"+rankingText+"</p>" +
+    "<button onclick='location.reload()'>もう一回</button>";
+}
 
 </script>
 
