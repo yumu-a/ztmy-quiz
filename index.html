@@ -30,6 +30,9 @@ input {
   border: 1px solid #b84cff;
   color: #b84cff;
 }
+img {
+  cursor: pointer;
+}
 </style>
 </head>
 
@@ -54,9 +57,14 @@ input {
   <button onclick="next()">次へ</button>
 </div>
 
+<!-- 🔥 名前＋アイコン -->
 <div id="name-area" style="display:none;">
-  <h2>名前を入力</h2>
+  <h2>名前とアイコン選択</h2>
   <input id="nameInput" placeholder="名前">
+
+  <h3>アイコン</h3>
+  <div id="icon-select"></div>
+
   <button onclick="submitName()">送信</button>
   <p id="error" style="color:red;"></p>
 </div>
@@ -64,10 +72,10 @@ input {
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAJBiQAmfuoNOtF4TOhqCPYRywOASvL52Y",
+  apiKey: "AIzaSy...",
   authDomain: "ztmy-quiz.firebaseapp.com",
   projectId: "ztmy-quiz",
 };
@@ -75,46 +83,61 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+// 🔥 アイコン（imagesフォルダ必須）
+const iconList = [
+  "images/icon1.png",
+  "images/icon2.png",
+  "images/icon3.png",
+  "images/icon4.png"
+];
+
+let selectedIcon = "";
+
+// アイコン表示
+function loadIcons(){
+  let area = document.getElementById("icon-select");
+  area.innerHTML = "";
+
+  iconList.forEach(icon=>{
+    let img = document.createElement("img");
+    img.src = icon;
+    img.width = 50;
+
+    img.onclick = () => {
+      selectedIcon = icon;
+      document.querySelectorAll("#icon-select img")
+        .forEach(i=>i.style.border="none");
+      img.style.border="2px solid #b84cff";
+    };
+
+    area.appendChild(img);
+  });
+}
+
+// ===== クイズ部分（そのまま） =====
 const quizData = {
-  easy: [
-    {q:"ボーカルは？",a:["ACAね","Ado","ikura","美波"],correct:0},
-    {q:"ZTMY特徴？",a:["匿名性","実写","男性","海外"],correct:0},
-    {q:"テーマは？",a:["内面","スポーツ","料理","歴史"],correct:0}
-  ],
-  hard: [
-    {q:"MV作家？",a:["革蝉","TV♡CHANY","Waboku","ゴル"],correct:2},
-    {q:"クラッカーのテーマ？",a:["現実逃避","友情","復讐","恋愛"],correct:0}
-  ]
+  easy:[{q:"ボーカルは？",a:["ACAね","Ado","ikura","美波"],correct:0}],
+  hard:[{q:"MV作家？",a:["革蝉","TV♡CHANY","Waboku","ゴル"],correct:2}]
 };
 
 let quiz=[], i=0, score=0, mode="easy";
 
-// シャッフル
-function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}}
+function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.random()* (i+1)|0;[a[i],a[j]]=[a[j],a[i]];}}
 
-// スタート
-window.start = function(m){
-  mode = m;
+window.start=function(m){
+  mode=m;
   document.getElementById("start-area").style.display="none";
   document.getElementById("quiz-area").style.display="block";
-
-  let pool=[...quizData[m]];
-  shuffle(pool);
-  quiz=pool;
-
+  quiz=[...quizData[m]];
   i=0; score=0;
   load();
 }
 
-// 問題表示
 function load(){
   document.getElementById("question").innerText="Q"+(i+1)+". "+quiz[i].q;
-  for(let j=0;j<4;j++){
-    document.getElementById("a"+j).innerText=quiz[i].a[j];
-  }
+  for(let j=0;j<4;j++) document.getElementById("a"+j).innerText=quiz[i].a[j];
 }
 
-// 回答
 window.answer=function(n){
   document.getElementById("quiz-area").style.display="none";
   document.getElementById("result-area").style.display="block";
@@ -122,84 +145,95 @@ window.answer=function(n){
   if(n===quiz[i].correct){
     score++;
     document.body.style.background="#2a003f";
-    document.getElementById("result-text").innerText="正解！🔥";
+    resultText.innerText="正解！🔥";
   }else{
     document.body.style.background="#3f0000";
-    document.getElementById("result-text").innerText="不正解… 正解は「"+quiz[i].a[quiz[i].correct]+"」";
+    resultText.innerText="不正解… 正解は「"+quiz[i].a[quiz[i].correct]+"」";
   }
 }
 
-// 次へ
 window.next=function(){
   i++;
   if(i<quiz.length){
     document.body.style.background="black";
-    document.getElementById("quiz-area").style.display="block";
-    document.getElementById("result-area").style.display="none";
+    quiz-area.style.display="block";
+    result-area.style.display="none";
     load();
   }else{
     finish();
   }
 }
 
-// 終了
+// ===== 終了 =====
 function finish(){
-  document.getElementById("result-area").style.display="none";
-  document.getElementById("name-area").style.display="block";
+  result-area.style.display="none";
+  name-area.style.display="block";
+  loadIcons();
 }
 
-// 名前送信
+// ===== ここが核心 =====
 window.submitName = async function(){
-  let name=document.getElementById("nameInput").value.trim();
-  let error=document.getElementById("error");
-  error.innerText="";
 
-  if(!name){error.innerText="名前入力して"; return;}
+  let name = nameInput.value.trim();
+  if(!name || !selectedIcon){ error.innerText="入力＆選択して"; return;}
 
-  // 🔥 同じモードで一回だけ
-  if(localStorage.getItem("played_"+mode)){
-    error.innerText="このモードはもう登録済み";
-    return;
-  }
+  let percent = Math.round((score/quiz.length)*100);
 
-  // 🔥 同名チェック
-  const snap = await getDocs(collection(db,"ranking_"+mode));
-  let exists=false;
-  snap.forEach(doc=>{
-    if(doc.data().name===name) exists=true;
-  });
-  if(exists){
-    error.innerText="その名前は使われています";
-    return;
-  }
+  const col = collection(db,"ranking_"+mode);
+  const snap = await getDocs(col);
 
-  let percent=Math.round((score/quiz.length)*100);
+  let found=null;
 
-  await addDoc(collection(db,"ranking_"+mode),{
-    name:name,
-    score:percent
+  snap.forEach(d=>{
+    if(d.data().name===name) found=d;
   });
 
-  localStorage.setItem("played_"+mode,true);
+  if(found){
+    // 🔥 スコア更新
+    if(percent > found.data().score){
+      await updateDoc(doc(db,"ranking_"+mode,found.id),{
+        score:percent,
+        icon:selectedIcon
+      });
+    }
+  }else{
+    await addDoc(col,{
+      name:name,
+      score:percent,
+      icon:selectedIcon
+    });
+  }
 
-  // ランキング取得
-  const q=query(collection(db,"ranking_"+mode),orderBy("score","desc"),limit(5));
-  const res=await getDocs(q);
+  showRanking();
+}
 
-  let text="";
+// ===== ランキング =====
+async function showRanking(){
+  const q=query(collection(db,"ranking_"+mode),orderBy("score","desc"),limit(100));
+  const snap=await getDocs(q);
+
+  let html="<h1>ランキング</h1>";
   let rank=1;
-  res.forEach(doc=>{
+
+  snap.forEach(doc=>{
     let d=doc.data();
-    text+=rank+"位: "+d.name+" - "+d.score+"%<br>";
+
+    let style="";
+    if(rank===1) style="color:gold;font-size:24px;";
+    if(rank===2) style="color:silver;";
+    if(rank===3) style="color:#cd7f32;";
+
+    html+=`
+      <div style="${style}">
+        <img src="${d.icon}" width="40">
+        ${rank}位: ${d.name} - ${d.score}%
+      </div>
+    `;
     rank++;
   });
 
-  document.body.innerHTML=
-    "<h1>結果</h1>"+
-    "<h2>"+percent+"%</h2>"+
-    "<h2>"+mode+"ランキング</h2>"+
-    "<p>"+text+"</p>"+
-    "<button onclick='location.reload()'>もう一回</button>";
+  html+="<button onclick='location.reload()'>もう一回</button>";
+  document.body.innerHTML=html;
 }
 
 </script>
