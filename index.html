@@ -71,6 +71,7 @@ img {
 
 <script type="module">
 
+import { quizDate } from "./quwstion.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -113,12 +114,6 @@ function loadIcons(){
     area.appendChild(img);
   });
 }
-
-// ===== クイズ部分（そのまま） =====
-const quizData = {
-  easy:[{q:"ボーカルは？",a:["ACAね","Ado","ikura","美波"],correct:0}],
-  hard:[{q:"MV作家？",a:["革蝉","TV♡CHANY","Waboku","ゴル"],correct:2}]
-};
 
 let quiz=[], i=0, score=0, mode="easy";
 
