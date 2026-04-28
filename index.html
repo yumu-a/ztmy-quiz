@@ -75,7 +75,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSy...",
+  apiKey: "AIzaSyAJBiQAmfuoNOtF4TOhqCPYRywOASvL52Y",
   authDomain: "ztmy-quiz.firebaseapp.com",
   projectId: "ztmy-quiz",
 };
@@ -145,10 +145,11 @@ window.answer=function(n){
   if(n===quiz[i].correct){
     score++;
     document.body.style.background="#2a003f";
-    resultText.innerText="正解！🔥";
+    document.getElementById("result-text").innerText="正解！🔥";
   }else{
     document.body.style.background="#3f0000";
-    resultText.innerText="不正解… 正解は「"+quiz[i].a[quiz[i].correct]+"」";
+    document.getElementById("result-text").innerText=
+      "不正解… 正解は「"+quiz[i].a[quiz[i].correct]+"」";
   }
 }
 
@@ -156,8 +157,8 @@ window.next=function(){
   i++;
   if(i<quiz.length){
     document.body.style.background="black";
-    quiz-area.style.display="block";
-    result-area.style.display="none";
+    document.getElementById("quiz-area").style.display="block";
+    document.getElementById("result-area").style.display="none";
     load();
   }else{
     finish();
@@ -166,16 +167,21 @@ window.next=function(){
 
 // ===== 終了 =====
 function finish(){
-  result-area.style.display="none";
-  name-area.style.display="block";
+  document.getElementById("result-area").style.display="none";
+  document.getElementById("name-area").style.display="block";
   loadIcons();
 }
 
 // ===== ここが核心 =====
 window.submitName = async function(){
 
-  let name = nameInput.value.trim();
-  if(!name || !selectedIcon){ error.innerText="入力＆選択して"; return;}
+  let name = document.getElementById("nameInput").value.trim();
+  let error = document.getElementById("error");
+
+  if(!name || !selectedIcon){
+    error.innerText="入力＆選択して";
+    return;
+  }
 
   let percent = Math.round((score/quiz.length)*100);
 
@@ -189,7 +195,6 @@ window.submitName = async function(){
   });
 
   if(found){
-    // 🔥 スコア更新
     if(percent > found.data().score){
       await updateDoc(doc(db,"ranking_"+mode,found.id),{
         score:percent,
