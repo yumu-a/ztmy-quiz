@@ -71,6 +71,29 @@ input {
   #question { font-size: 18px; }
   button { font-size: 16px; padding: 12px; }
 }
+
+#hell-btn{
+  animation: flash 1s infinite;
+  border-color: red;
+  color: red;
+  box-shadow: 0 0 20px red;
+}
+
+@keyframes flash{
+  0%{opacity:1;}
+  50%{opacity:0.3;}
+  100%{opacity:1;}
+}
+
+.correct{
+  animation: glow 0.5s;
+}
+
+@keyframes glow{
+  0%{transform:scale(1);}
+  50%{transform:scale(1.03);}
+  100%{transform:scale(1);}
+}
 </style>
 </head>
 
@@ -79,7 +102,14 @@ input {
 <div id="start-area">
   <h1>ZTMYクイズ</h1>
   <button onclick="start('easy')">Easy</button>
-  <button onclick="start('hard')">ガチ勢モード</button>
+  <button onclick="start('normal')">Normal</button>
+  <button onclick="start('hard')">hard</button>
+
+  <button id="hell-btn"
+  onclick="start('hell')"
+  style="display:none;">
+  HELL
+  </button>
 </div>
 
 <div id="quiz-area" style="display:none;">
@@ -113,7 +143,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSy...",
+  apiKey: "AIzaSyAJBiQAmfuoNOtF4TOhqCPYRywOASvL52Y",
   authDomain: "ztmy-quiz.firebaseapp.com",
   projectId: "ztmy-quiz",
 };
@@ -177,9 +207,13 @@ window.start=function(m){
 }
 
 function load(){
-  document.getElementById("question").innerText="Q"+(i+1)+". "+quiz[i].q;
+
+  document.getElementById("question").innerText =
+  `Q${i+1}/10\n${quiz[i].q}`;
+
   for(let j=0;j<4;j++){
-    document.getElementById("a"+j).innerText=quiz[i].a[j];
+    document.getElementById("a"+j).innerText =
+    quiz[i].a[j];
   }
 }
 
@@ -189,6 +223,11 @@ window.answer=function(n){
 
   if(n===quiz[i].correct){
     score++;
+    document.body.classList.add("correct");
+
+    setTimeout(()=>{
+      document.body.classList.remove("correct");
+    },500);
     document.body.style.background="#2a003f";
     document.getElementById("result-text").innerText="正解！🔥";
   }else{
@@ -228,6 +267,9 @@ window.submitName = async function(){
   }
 
   let percent = Math.round((score/quiz.length)*100);
+  if(percent === 100){
+  localStorage.setItem(mode+"_clear","true");
+  }
 
   const col = collection(db,"ranking_"+mode);
   const snap = await getDocs(col);
@@ -252,7 +294,7 @@ window.submitName = async function(){
       icon:selectedIcon
     });
   }
-
+  checkHell();
   showRanking();
 }
 
@@ -268,6 +310,17 @@ async function showRanking(){
     let d=doc.data();
 
     let style="";
+    let title="";
+
+    if(d.score === 100){
+      title="👑 神";
+    }else if(d.score >= 80){
+      title="🔥 ガチ勢";
+    }else if(d.score >= 50){
+      title="✨ ファン";
+    }else{
+      title="🙂 にわか";
+    }
     if(rank===1) style="color:gold;font-size:24px;";
     if(rank===2) style="color:silver;";
     if(rank===3) style="color:#cd7f32;";
@@ -275,7 +328,7 @@ async function showRanking(){
     html+=`
       <div style="${style}">
         <img src="${d.icon}" width="40">
-        ${rank}位: ${d.name} - ${d.score}%
+        ${rank}位: ${d.name} - ${d.score}% ${title}
       </div>
     `;
     rank++;
@@ -284,6 +337,28 @@ async function showRanking(){
   html+="<button onclick='location.reload()'>もう一回</button>";
   document.body.innerHTML=html;
 }
+  
+function checkHell(){
+
+  const easy =
+    localStorage.getItem("easy_clear");
+
+  const normal =
+    localStorage.getItem("normal_clear");
+
+  const hard =
+    localStorage.getItem("hard_clear");
+
+  if(easy && normal && hard){
+
+    document.getElementById("hell-btn")
+      .style.display="block";
+
+    alert("HELL MODE UNLOCK");
+  }
+}
+
+checkHell();
 
 </script>
 
