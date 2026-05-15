@@ -331,6 +331,88 @@ window.submitName = async function(){
   showRanking();
 }
 
+window.showAllRankings = async function(){
+
+  document.getElementById("start-area")
+    .style.display="none";
+
+  document.getElementById("ranking-area")
+    .style.display="block";
+
+  document.getElementById("ranking-title")
+    .innerText = "ALL RANKINGS";
+
+  document.getElementById("ranking-list")
+    .innerHTML = "Loading...";
+
+  const modes = ["easy","normal","hard","hell"];
+
+  let html = "";
+
+  for(let m of modes){
+
+    const q = query(
+      collection(db,"ranking_"+m),
+      orderBy("score","desc"),
+      limit(10)
+    );
+
+    const snap = await getDocs(q);
+
+    html += `
+      <h2 style="
+        color:#ff4fd8;
+        margin-top:30px;
+      ">
+        ${m.toUpperCase()}
+      </h2>
+    `;
+
+    let rank = 1;
+
+    snap.forEach(doc=>{
+
+      let d = doc.data();
+
+      html += `
+        <div style="
+          margin:10px;
+          padding:10px;
+          border:1px solid #b84cff;
+          border-radius:10px;
+        ">
+
+          <img src="${d.icon}"
+          width="40"
+          style="
+            border-radius:50%;
+            vertical-align:middle;
+          ">
+
+          ${rank}位 :
+          ${d.name}
+          - ${d.score}%
+
+          <button onclick="
+            deleteRankMode(
+              '${m}',
+              '${doc.id}'
+            )
+          ">
+            削除
+          </button>
+
+        </div>
+      `;
+
+      rank++;
+    });
+  }
+
+  document.getElementById("ranking-list")
+    .innerHTML = html;
+}
+
 /* ===== ランキング ===== */
 async function showRanking(){
   document.getElementById("ranking-title")
@@ -478,17 +560,17 @@ title.addEventListener("click", ()=>{
 
 });
 
-window.deleteRank = async function(id){
+window.deleteRankMode = async function(id){
 
   let ok = confirm("削除する？");
 
   if(!ok) return;
 
   await deleteDoc(
-    doc(db,"ranking_"+mode,id)
+    doc(db,"ranking_"+modeName,id)
   );
 
-  showRanking();
+  showAllRanking();
 }
 
 window.adminLogin = function(){
