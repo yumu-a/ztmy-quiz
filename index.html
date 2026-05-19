@@ -560,7 +560,7 @@ title.addEventListener("click", ()=>{
 
 });
 
-window.deleteRankMode = async function(id){
+window.deleteRankMode = async function(modeName,id){
 
   let ok = confirm("削除する？");
 
@@ -570,7 +570,7 @@ window.deleteRankMode = async function(id){
     doc(db,"ranking_"+modeName,id)
   );
 
-  showAllRanking();
+  showAllRankings();
 }
 
 window.adminLogin = function(){
@@ -583,7 +583,7 @@ window.adminLogin = function(){
 
     alert("SYSTEM ACCESS");
 
-    showRanking();
+    showAllRankings();
 
   }else{
 
