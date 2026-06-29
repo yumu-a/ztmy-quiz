@@ -477,7 +477,7 @@ async function showRanking(){
     if(admin){
 
       deleteButton = `
-        <button onclick="deleteRank('${doc.id}')">
+        <button onclick="deleteRankMode('${mode}','${doc.id}')">
           削除
         </button>
       `;
@@ -527,11 +527,6 @@ function checkHell(){
     document.getElementById("hell-btn")
       .style.display="block";
 
-  if(easy && normal && hard){
-
-    document.getElementById("hell-btn")
-      .style.display="block";
-
     if(!localStorage.getItem("hell_notice")){
 
       alert("HELL MODE UNLOCK");
@@ -541,7 +536,6 @@ function checkHell(){
         "true"
       );
     }
-  }
   }
 }
 
