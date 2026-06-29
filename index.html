@@ -329,8 +329,13 @@ window.submitName = async function(){
     });
   }
   checkHell();
-  showRanking();
-}
+
+  if(admin){
+    showAllRankings();
+  }else{
+    showRanking();
+  }
+  }
 
 window.showAllRankings = async function(){
 
@@ -393,7 +398,8 @@ window.showAllRankings = async function(){
           ${rank}位 :
           ${d.name}
           - ${d.score}%
-
+          
+          ${admin ? `
           <button onclick="
             deleteRankMode(
               '${m}',
@@ -402,6 +408,7 @@ window.showAllRankings = async function(){
           ">
             削除
           </button>
+          ` : ""}
 
         </div>
       `;
