@@ -95,6 +95,59 @@ input {
   50%{transform:scale(1.03);}
   100%{transform:scale(1);}
 }
+
+ /* コメント欄 */
+#contact-area {
+  margin: 40px auto 20px;
+  max-width: 500px;
+}
+
+#contact-area h2,
+#sns-area h2 {
+  font-size: 20px;
+}
+
+#comment {
+  width: 90%;
+  height: 100px;
+  padding: 10px;
+  resize: vertical;
+
+  background: #111;
+  color: #b84cff;
+  border: 1px solid #b84cff;
+  border-radius: 8px;
+
+  font-size: 16px;
+  font-family: monospace;
+}
+
+#comment::placeholder {
+  color: #777;
+}
+
+/* SNS */
+#sns-area {
+  margin-top: 30px;
+  padding-bottom: 30px;
+}
+
+#sns-area a {
+  display: inline-block;
+  margin: 5px 10px;
+  padding: 10px 20px;
+
+  color: #b84cff;
+  text-decoration: none;
+
+  border: 1px solid #b84cff;
+  border-radius: 8px;
+}
+
+#sns-area a:hover {
+  background: #b84cff;
+  color: black;
+} 
 </style>
 </head>
 
@@ -111,6 +164,32 @@ input {
   style="display:none;">
   Hell
   </button>
+
+  <!-- コメント・意見 -->
+  <div id="contact-area">
+    <h2>コメント・ご意見</h2>
+    <a href="ここにGoogleフォームのURL"
+       target="_blank">
+      <button>コメント・ご意見を送る</button>
+    </a>
+    
+  </div>
+
+  <!-- SNS -->
+  <div id="sns-area">
+    <h2>SNS</h2>
+
+    <a href="https://x.com/walk_a_s"
+       target="_blank">
+      X
+    </a>
+
+    <a href="https://www.instagram.com/ayumu_ztmy?stkn=bTJpdHFiODFjNWQy"
+       target="_blank">
+      Instagram
+    </a>
+  </div>
+
 </div>
 
 <div id="quiz-area" style="display:none;">
@@ -452,13 +531,13 @@ async function showRanking(){
     let title="";
 
     if(d.score === 100){
-      title="👑 神";
+      title="Excellent";
     }else if(d.score >= 80){
-      title="🔥 ガチ勢";
+      title="Great";
     }else if(d.score >= 50){
-      title="✨ ファン";
+      title="Good";
     }else{
-      title="🙂 にわか";
+      title="Bad";
     }
 
     if(rank===1){
